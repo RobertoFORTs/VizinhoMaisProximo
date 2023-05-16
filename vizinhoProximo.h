@@ -9,11 +9,11 @@ typedef struct Kd_Node{
 
 typedef struct KD_Tree{
   node* root;
-  float (*compara)(const void *a, const void *b);
+  int (*compara)(const void *a, const void *b);
 }tree;
 
 
 
-float compare(float *coordinate, float *candidate);
-void kd_build(tree *ptree, float (*compara)(const void *a, const void *b));
+int compare(float *coordinate, float *candidate);
+void kd_build(tree *ptree, int (*compara)(const void *a, const void *b));
 void kd_insert(tree *ptree, void *pdata);
