@@ -1,6 +1,6 @@
 #include "vizinhoProximo.h"
 #include <stdlib.h>
-
+#include <stdio.h>
 
 int compare(float *coordinate, float *candidate){
   if (candidate < coordinate){
@@ -52,4 +52,15 @@ void kd_insert(tree *ptree, void *pdata){
     (*ppNode)->left = NULL;
     (*ppNode)->right = NULL;
   }
+}
+
+void printKDTree(node *root){
+
+  if (root == NULL){
+    return;
+  }
+
+  printKDTree(root->left);
+  printf("[%.2f ,%.2f] \n", root->coordinate[0], root->coordinate[1]);
+  printKDTree(root->right);
 }
