@@ -14,7 +14,9 @@ typedef struct KD_Tree{
 
 
 
-int compare(float *coordinate, float *candidate);
+int compare(const void *coordinate, const void*candidate);
 void kd_build(tree *ptree, int (*compara)(const void *a, const void *b));
-void kd_insert(tree *ptree, void *pdata);
-void printKDTree(node *raiz);
+void kd_insert(tree *ptree, node *pdata);
+node* new_node(void* data, int x, int y);
+void printNode(node * nodeObj);
+void printKDTree(tree *raiz);

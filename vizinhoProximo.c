@@ -2,44 +2,54 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int compare(float *coordinate, float *candidate){
-  if (candidate < coordinate){
+int compare(const void* coordinate, const void *candidate){
+  float* a = (float*)coordinate;
+  float* b = (float*)candidate;
+  if (*b < *a){
     return -1;
   }
   return 0;
 }
 
 void kd_build(tree *ptree, int (*compara)(const void *a, const void *b)){
-  ptree -> root = NULL;
-  ptree -> compara = compara;
+  ptree->root = NULL;
+  ptree->compara = compara;
 }
-void kd_insert(tree *ptree, void *pdata){
+
+node* new_node(void* data, int x, int y){
+  node* output = malloc(sizeof(node));
+  output->data = data;
+  output->coordinate[0] = x;
+  output->coordinate[1] = y;
+  return output;
+}
+
+void kd_insert(tree *ptree, node *new_node){
   node **ppNode;
   node *pNode;
   ppNode = &(ptree->root);
   pNode = *ppNode;
   int depth = 0;
-  struct Kd_Node* pDataResultant = (struct Kd_Node*)pdata;
 
   while (pNode != NULL){
     
     if (depth%2==0){
-      if (ptree->compara(&(pNode->coordinate[0]), &(pDataResultant->coordinate[0])) < 0){
-        ppNode = &(pNode->left);
+      if (ptree->compara(&(pNode->coordinate[0]), &(new_node->coordinate[0])) < 0){
+        ppNode = (node**)&(pNode->left);
         pNode = *ppNode;
       }
       else{
-        ppNode = &(pNode->right);
+        ppNode = (node**)&(pNode->right);
         pNode = *ppNode;
       }
     }
     else{
-      if (ptree->compara(&(pNode->coordinate[1]), &(pDataResultant->coordinate[1])) < 0){
-        ppNode = &(pNode->left);
+      if (ptree->compara(&(pNode->coordinate[1]), &(new_node->coordinate[1])) < 0){
+        ppNode = (node**)&(pNode->left);
         pNode = *ppNode;
       }
       else{
-        ppNode = &(pNode->right);
+        ppNode = (node**)&(pNode->right);
         pNode = *ppNode;
       }
     }
@@ -47,20 +57,30 @@ void kd_insert(tree *ptree, void *pdata){
     depth++;
   }
   if ((*ppNode == NULL)){
-    (*ppNode) = malloc(sizeof(node));
-    (*ppNode)->data = pDataResultant->data;
+    (*ppNode) = new_node;
     (*ppNode)->left = NULL;
     (*ppNode)->right = NULL;
   }
 }
 
-void printKDTree(node *root){
-
+void printKDTree(tree * treeObj){
+  node* root = treeObj->root;
   if (root == NULL){
     return;
   }
+  else printNode(root); 
+}
 
-  printKDTree(root->left);
-  printf("[%.2f ,%.2f] \n", root->coordinate[0], root->coordinate[1]);
-  printKDTree(root->right);
+void printNode(node * nodeObj){
+
+  if(nodeObj->left) {
+    printNode((node*)nodeObj->left);
+  }
+
+  printf("[%.2f ,%.2f] \n", nodeObj->coordinate[0], nodeObj->coordinate[1]);
+  
+  if(nodeObj->right) {
+    printNode((node*)nodeObj->right);
+  }
+  
 }

@@ -3,6 +3,7 @@
   "terminal.integrated.shellIntegration.enabled": true,
   "C_Cpp.errorSquiggles": "disabled",
   "files.associations": {
-    "stdio.h": "c"
+    "stdio.h": "c",
+    "vizinhoproximo.h": "c"
   }
 }
