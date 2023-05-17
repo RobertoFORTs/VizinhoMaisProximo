@@ -12,6 +12,7 @@ int compare(const void* coordinate, const void *candidate){
 }
 
 void kd_build(tree *ptree, int (*compara)(const void *a, const void *b)){
+  
   ptree->root = NULL;
   ptree->compara = compara;
 }
@@ -82,5 +83,4 @@ void printNode(node * nodeObj){
   if(nodeObj->right) {
     printNode((node*)nodeObj->right);
   }
-  
 }
