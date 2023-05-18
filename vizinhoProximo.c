@@ -84,3 +84,19 @@ void printNode(node * nodeObj){
     printNode((node*)nodeObj->right);
   }
 }
+
+void deleteTree(tree *raiz){
+
+  if (raiz->root == NULL){
+    return;
+  }
+
+  deleteTree(raiz->root->left);  
+  deleteTree(raiz->root->dir);
+
+  free(raiz->root);  
+}
+
+node* searchNextNeighbor(node* root, const void* location, int numberOfNeighbors){
+  
+}
