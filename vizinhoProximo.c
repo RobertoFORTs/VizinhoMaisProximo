@@ -89,7 +89,6 @@ void printNode(node * nodeObj){
 void deleteTree(tree *raiz){
 
   if (raiz->root == NULL){
-    printf( " Arvore vazia!!😂😂😂😂😂😂\n");
     return;
   }
   int cont = 1;
