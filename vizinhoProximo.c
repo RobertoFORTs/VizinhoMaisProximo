@@ -78,21 +78,34 @@ void printNode(node * nodeObj){
     printNode((node*)nodeObj->left);
   }
 
-  printf("[%.2f ,%.2f] \n", nodeObj->coordinate[0], nodeObj->coordinate[1]);
+  printf("[%.2f, %.2f] \n", nodeObj->coordinate[0], nodeObj->coordinate[1]);
   
   if(nodeObj->right) {
     printNode((node*)nodeObj->right);
   }
+
 }
 
 void deleteTree(tree *raiz){
 
   if (raiz->root == NULL){
+    printf( " Arvore vazia!!😂😂😂😂😂😂\n");
     return;
   }
+  int cont = 1;
+  if (cont != 1){
+    raiz->root = (node *)(raiz->root->left);
+    raiz = (tree *)(raiz->root);
+  }
+  else{
+    raiz = (tree *)(raiz->root);
+  }
+  deleteTree(raiz);  
 
-  deleteTree(raiz->root->left);  
-  deleteTree(raiz->root->dir);
+  raiz->root = (node *)(raiz->root->right);
+  raiz = (tree *)(raiz->root);
+
+  deleteTree(raiz);
 
   free(raiz->root);  
 }
