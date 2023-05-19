@@ -18,6 +18,8 @@ int main(){
   kd_insert(kd_arvore, new_node(NULL, 13,14));
   printKDTree(kd_arvore);
   deleteTree(kd_arvore);
+  printKDTree(kd_arvore); //apenas para verificar se a arvore foi apagada corretamente
+  printf("\n FIMM!!");
   
   return 0;
 }
