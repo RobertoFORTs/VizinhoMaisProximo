@@ -21,4 +21,5 @@ node* new_node(void* data, int x, int y);
 void printNode(node * nodeObj);
 void printKDTree(tree *raiz);
 node* searchNextNeighbor(node* root, const void* location, int numberOfNeighbors);
+void deleteNodes(node *root);
 void deleteTree(tree *raiz);

@@ -23,8 +23,8 @@ int main(){
   kd_insert(kd_tree, node5);
 
   deleteTree(kd_tree);
-
-  assert(kd_tree == NULL);
+  
+  assert(kd_tree->root == NULL);
 
   printf("Deletion test was succesfull!!");
 

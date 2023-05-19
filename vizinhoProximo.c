@@ -86,27 +86,24 @@ void printNode(node * nodeObj){
 
 }
 
-void deleteTree(tree *raiz){
+void deleteNodes(node *actual){
 
-  if (raiz->root == NULL){
+  if (actual == NULL){
     return;
   }
-  int cont = 1;
-  if (cont != 1){
-    raiz->root = (node *)(raiz->root->left);
-    raiz = (tree *)(raiz->root);
-  }
-  else{
-    raiz = (tree *)(raiz->root);
-  }
-  deleteTree(raiz);  
 
-  raiz->root = (node *)(raiz->root->right);
-  raiz = (tree *)(raiz->root);
+  deleteNodes((node*)actual->left);
+  deleteNodes((node*)actual->right);
 
-  deleteTree(raiz);
+  free(actual);
+}
 
-  free(raiz->root);  
+void deleteTree(tree *kd_tree){
+
+  deleteNodes((node*)kd_tree->root);
+  kd_tree->compara = NULL;
+  kd_tree->root=NULL;
+  
 }
 
 node* searchNextNeighbor(node* root, const void* location, int numberOfNeighbors){
