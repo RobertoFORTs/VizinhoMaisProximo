@@ -17,6 +17,17 @@ int main(){
   kd_insert(kd_arvore, new_node(NULL, 1,6));
   kd_insert(kd_arvore, new_node(NULL, 13,14));
   printKDTree(kd_arvore);
+
+  float location[2];
+  location[0] = 10;
+  location[1] = 12;
+  node **listaMelhores;
+  listaMelhores = malloc(sizeof(node*));
+  int *tamanhoListaMelhores;
+  int aux = 0;
+  tamanhoListaMelhores = &aux;
+  // searchNextNeighbor(kd_arvore->root, location, 1, 0, listaMelhores, tamanhoListaMelhores);
+  // printf("\n - %f - \n ", *listaMelhores[0]);
   deleteTree(kd_arvore);
   printKDTree(kd_arvore); //apenas para verificar se a arvore foi apagada corretamente
   printf("\n FIMM!!");

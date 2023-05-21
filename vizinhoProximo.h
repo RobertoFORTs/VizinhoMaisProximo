@@ -3,6 +3,7 @@
 typedef struct Kd_Node{
   void* data;
   float coordinate[2];
+  struct Kd_node* parent;
   struct Kd_node* left;
   struct Kd_node* right;
 }node;
@@ -18,8 +19,9 @@ int compare(const void *coordinate, const void*candidate);
 void kd_build(tree *ptree, int (*compara)(const void *a, const void *b));
 void kd_insert(tree *ptree, node *pdata);
 node* new_node(void* data, int x, int y);
-void printNode(node * nodeObj);
+void printNode(node *nodeObj);
 void printKDTree(tree *raiz);
-node* searchNextNeighbor(node* root, const void* location, int numberOfNeighbors);
+// float distance(const void *coordinate; const void *neighbor);
+void searchNextNeighbor(node* current_node, float* location, int numberOfNeighbors, int depth, node** listaMelhores, int* tamAtualLista);
 void deleteNodes(node *root);
 void deleteTree(tree *raiz);
