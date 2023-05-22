@@ -21,7 +21,7 @@ void kd_insert(tree *ptree, node *pdata);
 node* new_node(void* data, int x, int y);
 void printNode(node *nodeObj);
 void printKDTree(tree *raiz);
-// float distance(const void *coordinate; const void *neighbor);
+float distance(const void *coordinate, const void *neighbor);
 void searchNextNeighbor(node* current_node, float* location, int numberOfNeighbors, int depth, node** listaMelhores, int* tamAtualLista);
 void deleteNodes(node *root);
 void deleteTree(tree *raiz);
