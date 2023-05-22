@@ -26,8 +26,8 @@ int main(){
   int *tamanhoListaMelhores;
   int aux = 0;
   tamanhoListaMelhores = &aux;
-  // searchNextNeighbor(kd_arvore->root, location, 1, 0, listaMelhores, tamanhoListaMelhores);
-  // printf("\n - %f - \n ", *listaMelhores[0]);
+  searchNextNeighbor(kd_arvore->root, location, 1, 0, listaMelhores, tamanhoListaMelhores);
+  printf("\n\n\n - %f - \n\n\n ", *listaMelhores[0]);
   deleteTree(kd_arvore);
   printKDTree(kd_arvore); //apenas para verificar se a arvore foi apagada corretamente
   printf("\n FIMM!!");
