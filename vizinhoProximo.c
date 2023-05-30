@@ -116,6 +116,27 @@ node* sucessores(node *pnodeAtual){
   }
 }
 
+node *predecessor(node *pnodeAtual, int depth){
+  if (pnodeAtual->left == NULL && pnodeAtual->right == NULL){
+    pnodeAtual = (node*)pnodeAtual->parent;
+    depth++;
+    while(1){
+      if (depth%2==0){
+        if ((pnodeAtual->pdata->x - pnodeAtual->parent->pdata->x) >=0  ){
+          break;
+        }
+        depth++;
+      }
+      else{
+        if ((pnodeAtual->pdata->y - pnodeAtual->parent->pdata->y) >=0  ){
+          break;
+        }
+        depth++;
+      }
+    }
+  }
+}
+
 void printKDTree(const void *treeObj, void (*printNode)(void *nodeObj)){
   tree *arv = (tree*)treeObj;
   node* root = arv->root;

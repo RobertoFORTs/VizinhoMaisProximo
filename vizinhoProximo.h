@@ -40,3 +40,4 @@ void searchDeleteNode(tree *ptree);
 void deleteNodes(node *root);
 void deleteTree(tree *raiz);
 node* sucessor(node *pnodeAtual);
+node* predecessor(node* pNodeAtual);
