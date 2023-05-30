@@ -134,8 +134,8 @@ node *predecessor(node *pnodeAtual, int depth){
 
       node* parent = pnodeAtual->parent;
 
-      while (parent != NULL && no == parent->left){
-        no = parent;
+      while (parent != NULL && pnodeAtual == parent->left){
+        pnodeAtual = parent;
         parent = parent->parent;
       }
 
