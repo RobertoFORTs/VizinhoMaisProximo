@@ -125,8 +125,8 @@ node *predecessor(node *pnodeAtual, int depth){
 
     if(pnodeAtual->left != NULL){
       pnodeAtual = pnodeAtual->left;
-      while (pnodeAtual->direita != NULL){
-        pnodeAtual = pnodeAtual->direita;
+      while (pnodeAtual->right != NULL){
+        pnodeAtual = pnodeAtual->right;
       }
 
       return pnodeAtual;
@@ -134,7 +134,7 @@ node *predecessor(node *pnodeAtual, int depth){
 
       node* parent = pnodeAtual->parent;
 
-      while (parent != NULL && no == parent->esquerda){
+      while (parent != NULL && no == parent->left){
         no = parent;
         parent = parent->parent;
       }
