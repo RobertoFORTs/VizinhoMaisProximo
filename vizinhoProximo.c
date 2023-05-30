@@ -3,30 +3,68 @@
 #include <stdio.h>
 #include <math.h>
 
-int compare(const void* coordinate, const void *candidate){
-  float* a = (float*)coordinate;
-  float* b = (float*)candidate;
-  if (*b < *a){
+int compare_restaurant(const void* coordinate, const void *candidate, int depth){
+  restaurant* a = (restaurant*)coordinate;
+  restaurant* b = (restaurant*)candidate;
+
+  if (depth%2 ==0){
+    if ((b)->x < (a)->x){
     return -1;
   }
   return 0;
+  }
+  else{
+    if ((b)->y < (a)->x){
+      return -1;
+    }
+    return 0;
+  }
 }
+int compare_cidade(const void* coordinate, const void *candidate, int depth){
+  cidade* a = (cidade*)coordinate;
+  cidade* b = (cidade*)candidate;
 
-void kd_build(tree *ptree, int (*compara)(const void *a, const void *b)){
+  if (depth%2 ==0){
+    if (b->x < a->x){
+    return -1;
+  }
+  return 0;
+  }
+  else{
+    if (b->y < a->x){
+      return -1;
+    }
+    return 0;
+  }
+}
+void kd_build(tree *ptree, int (*compara)(const void *a, const void *b, int depth), void (*printNode)(void *node)){
   
   ptree->root = NULL;
   ptree->compara = compara;
+  ptree->printNode = printNode;
 }
 
-node* new_node(void* data, int x, int y){
-  node* output = malloc(sizeof(node));
-  output->data = data;
-  output->coordinate[0] = x;
-  output->coordinate[1] = y;
+restaurant *new_restaurant(int x, int y){
+  restaurant *output = malloc(sizeof(restaurant));
+  output->x = x;
+  output->y = y;
   return output;
 }
 
-void kd_insert(tree *ptree, node *new_node){
+cidade *new_cidade(int x, int y){
+  cidade *output = malloc(sizeof(cidade));
+  output->x = x;
+  output->y = y;
+  return output;
+}
+
+node* new_node(void* data){
+  node* output = malloc(sizeof(node));
+  output->pdata = data; //verificar se isso estará sintaticamente correto
+  return output;
+}
+
+void kd_insert(tree *ptree, void *new_node_data){
   node **ppNode;
   node *pNode;
   node *parentTemp;
@@ -34,62 +72,85 @@ void kd_insert(tree *ptree, node *new_node){
   parentTemp = *ppNode;
   pNode = *ppNode;
   int depth = 0;
+  int aux;
 
   while (pNode != NULL){
     
-    if (depth%2==0){
-      if (ptree->compara(&(pNode->coordinate[0]), &(new_node->coordinate[0])) < 0){
+    if (ptree->compara(pNode->pdata, new_node_data, depth) == -1){
         parentTemp = *ppNode;
         ppNode = (node**)&(pNode->left);
         pNode = *ppNode;
       }
-      else{
-        parentTemp = *ppNode;
-        ppNode = (node**)&(pNode->right);
-        pNode = *ppNode;
-      }
-    }
     else{
-      if (ptree->compara(&(pNode->coordinate[1]), &(new_node->coordinate[1])) < 0){
-        parentTemp = *ppNode;
-        ppNode = (node**)&(pNode->left);
-        pNode = *ppNode;
-      }
-      else{
         parentTemp = *ppNode;
         ppNode = (node**)&(pNode->right);
         pNode = *ppNode;
       }
-    }
 
     depth++;
   }
   if ((*ppNode == NULL)){
-    (*ppNode) = new_node;
+    (*ppNode) = new_node(new_node_data);
     (*ppNode)->parent = (node*)parentTemp;
     (*ppNode)->left = NULL;
     (*ppNode)->right = NULL;
   }
 }
 
-void printKDTree(tree * treeObj){
-  node* root = treeObj->root;
+node* sucessores(node *pnodeAtual){
+
+  if (pnodeAtual->left ==  NULL){
+    pnodeAtual = (node*)pnodeAtual->right;
+    while (pnodeAtual->left!=NULL){
+      pnodeAtual = (node*)pnodeAtual->left;
+    }
+    return pnodeAtual; //será o sucessor no caso de ser um node no início ou meio da árvore
+  }
+  else{
+    pnodeAtual = (node*)pnodeAtual->left;
+    while (pnodeAtual->right!=NULL){
+      pnodeAtual = (node*)pnodeAtual->right;
+    }
+    return pnodeAtual; //será o sucessor no caso de ser um node no início ou meio da árvore
+
+  }
+}
+
+void printKDTree(const void *treeObj, void (*printNode)(void *nodeObj)){
+  tree *arv = (tree*)treeObj;
+  node* root = arv->root;
   if (root == NULL){
     return;
   }
   else printNode(root); 
 }
 
-void printNode(node * nodeObj){
-
-  if(nodeObj->left) {
-    printNode((node*)nodeObj->left);
+void printNode_restaurant(void *nodeObj){
+  node *nodeAux = (node*)nodeObj;
+  restaurant *aux = (restaurant*)nodeAux->pdata;
+  if(nodeAux->left) {
+    printNode_restaurant((node*)nodeAux->left);
   }
 
-  printf("[%.2f, %.2f] \n", nodeObj->coordinate[0], nodeObj->coordinate[1]);
+  printf("[%d, %d] \n", aux->x, aux->y);
   
-  if(nodeObj->right) {
-    printNode((node*)nodeObj->right);
+  if(nodeAux->right) {
+    printNode_restaurant((node*)nodeAux->right);
+  }
+
+}
+
+void printNode_cidade(void *nodeObj){
+  node *nodeAux = (node*)nodeObj;
+  cidade *aux = (cidade*)nodeAux->pdata;
+  if(nodeAux->left) {
+    printNode_cidade((node*)nodeAux->left);
+  }
+
+  printf("[%d, %d] \n", aux->x, aux->y);
+  
+  if(nodeAux->right) {
+    printNode_cidade((node*)nodeAux->right);
   }
 
 }
@@ -122,108 +183,33 @@ float distance(const void* coordinate, const void* neighbor){
   return sqrt( pow(b[0]-a[0], 2) + pow(b[1]-a[1], 2) );
 }
 
-float* globalLocation;
+// int compareListaMelhores(const void* A, const void *B){
+//   node* a = (node*)A;
+//   node* b = (node*)B;
+//   if (distance(b->coordinate, globalLocation) < distance(a->coordinate, globalLocation)){
+//     return -1;
+//   }
 
-int compareListaMelhores(const void* A, const void *B){
-  node* a = (node*)A;
-  node* b = (node*)B;
-  if (distance(b->coordinate, globalLocation) < distance(a->coordinate, globalLocation)){
-    return -1;
-  }
-  return 0;
-}
+//   if (distance(b->coordinate, globalLocation) > distance(a->coordinate, globalLocation)){
+//     return 1;
+//   }
+
+//   return 0;
+// }
 
 
 
-void insereListaMelhores(node** listaMelhores, int K, int* tamAtual, node* candidato, float* location){
-  listaMelhores[(*tamAtual)++] = candidato;
-  globalLocation = location;
-  qsort(listaMelhores, *tamAtual, sizeof(float) * 2, compareListaMelhores);
-  if(*tamAtual == K + 1) {
-    (*tamAtual)--;
-  }
-}
+// void insereListaMelhores(node** listaMelhores, int K, int* tamAtual, node* candidato, float* location){
+//   listaMelhores[(*tamAtual)++] = candidato;
+//   globalLocation = location;
+//   qsort(listaMelhores, *tamAtual, sizeof(node*) * 2, compareListaMelhores);
+//   if(*tamAtual == K + 1) {
+//     (*tamAtual)--;
+//   }
+// }
 
-void searchNextNeighbor(node* current_node, float* location, int numberOfNeighbors, int depth, node** listaMelhores, int* tamAtualLista){
-  
-  int currentAxis = depth % 2 == 0 ? 0 : 1;
-  int foiDireita;
-  
-  // if(current_node->left == NULL && current_node->right == NULL){
-  //   insereListaMelhores(listaMelhores, numberOfNeighbors, tamAtualLista, current_node, location);
-  //   return;
-  // }
-  // else if (location[currentAxis] < current_node->coordinate[currentAxis] && current_node->left == NULL){
-  //   insereListaMelhores(listaMelhores, numberOfNeighbors, tamAtualLista, current_node, location);
-  //   return;
-  // }
-  // else if (location[currentAxis] >= current_node->coordinate[currentAxis] && current_node->right == NULL){
-  //   insereListaMelhores(listaMelhores, numberOfNeighbors, tamAtualLista, current_node, location);
-  //   return;
-  // }
+// void searchNextNeighbor(){
 
-  if (current_node ==  NULL){ //para de percorrer árvore e subárvores
-    printf("Encontrei um no folha \n");
-    return;
-  }
 
-  if (depth%2==0){ //percorre árvore
-    if ( (float)location[0] < current_node->coordinate[0] ){ 
-      printf("fui pra esquerda 0\n");
-      foiDireita = 0;
-      searchNextNeighbor(current_node->left, location, numberOfNeighbors, depth + 1, listaMelhores, tamAtualLista);
-    }
-    else{
-      foiDireita = 1;
-      printf("fui pra direita 0\n");
-      searchNextNeighbor(current_node->right, location, numberOfNeighbors, depth + 1, listaMelhores, tamAtualLista);
-    }
-  }
-  else{
-    if ( (float)location[1] < current_node->coordinate[1] ){
-      foiDireita = 0;
-      printf("fui pra esquerda 1\n");
-      searchNextNeighbor(current_node->left, location, numberOfNeighbors, depth + 1, listaMelhores, tamAtualLista);
-    }
-    else{
-      foiDireita = 1;
-      printf("fui pra direita 1\n");
-      searchNextNeighbor(current_node->right, location, numberOfNeighbors, depth + 1, listaMelhores, tamAtualLista);
-    }
-  }
-
-  node* aux = listaMelhores[*tamAtualLista-1];
-  
-  if (*tamAtualLista == numberOfNeighbors){
-    if( fabs(current_node->coordinate[currentAxis] - location[currentAxis]) < distance(location, aux->coordinate) ){ //verifica raio do circulo
-      printf("Estou satisfeito com a função!!\n");
-      return;
-    }
-    else{
-        if (distance(location, aux->coordinate) > distance(location, current_node->coordinate)){
-          printf("Troquei na lista cheia\n");
-          insereListaMelhores(listaMelhores, numberOfNeighbors, tamAtualLista, current_node, location); //troca novo pior entre melhores
-        }
-        if(foiDireita){ //vai percorrer outra subárvore até satisfazer o primeiro if dps da verificação do tamanho da lista
-          printf("Após ter retornado ao pai, percorrerei a próxima subárvore à esquerda\n");
-          searchNextNeighbor(current_node->left, location, numberOfNeighbors, depth + 1, listaMelhores, tamAtualLista);
-        }
-        else{
-          printf("Após ter retornado ao pai, percorrerei a próxima subárvore à direita\n");
-          searchNextNeighbor(current_node->right, location, numberOfNeighbors, depth + 1, listaMelhores, tamAtualLista);
-        }
-      printf("Já percorri a subárvore agr retornarei ao pai\n");
-      return; //terminou de percorrer a subárvore ele deve retornar para o próximo pai caso ainda n tenha satisfeito a situação do primeiro if
-    
-      }
-  }
-  
-  else{ //enquanto não preencher a lista com o número de vizinhos mais próximos, vai adicionando seus antecessores e retorna para o nó anterior
-    printf("Eu sou o batman");
-    insereListaMelhores(listaMelhores, numberOfNeighbors, tamAtualLista, current_node, location);
-    printf("Após eu encontrar o nó na primeira descida na árvore, adicionei na lista e retornei ao próximo pai\n");
-    return;
-  }
-
-}
+// }
 

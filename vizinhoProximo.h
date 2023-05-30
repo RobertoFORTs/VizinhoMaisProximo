@@ -1,8 +1,17 @@
 #include <stdio.h>
 
+typedef struct Kd_restaurant{
+  int x;
+  int y;
+} restaurant;
+
+typedef struct Kd_brasil{
+  int x;
+  int y;
+} cidade;
+
 typedef struct Kd_Node{
-  void* data;
-  float coordinate[2];
+  void* pdata;
   struct Kd_node* parent;
   struct Kd_node* left;
   struct Kd_node* right;
@@ -10,18 +19,24 @@ typedef struct Kd_Node{
 
 typedef struct KD_Tree{
   node* root;
-  int (*compara)(const void *a, const void *b);
+  int (*compara)(const void *a, const void *b, int depth);
+  void (*printNode)(void* nodeObj);
 }tree;
 
 
-
-int compare(const void *coordinate, const void*candidate);
-void kd_build(tree *ptree, int (*compara)(const void *a, const void *b));
-void kd_insert(tree *ptree, node *pdata);
-node* new_node(void* data, int x, int y);
-void printNode(node *nodeObj);
-void printKDTree(tree *raiz);
+restaurant* new_restaurant(int x, int y);
+cidade* new_cidade(int x, int y);
+int compare_restaurant(const void *coordinate, const void*candidate, int depth);
+int compare_cidade(const void *coordinate, const void*candidate, int depth);
+void kd_build(tree *ptree, int (*compara)(const void *a, const void *b, int depth), void (*printNode)(void* nodeObj));
+void kd_insert(tree *ptree, void *pdata);
+node* new_node(void* data);
+void printNode_cidade(void *nodeObj);
+void printNode_restaurant(void *nodeObj);
+void printKDTree(const void* tree, void (*printNode)(void *nodeObj));
 float distance(const void *coordinate, const void *neighbor);
-void searchNextNeighbor(node* current_node, float* location, int numberOfNeighbors, int depth, node** listaMelhores, int* tamAtualLista);
+void searchNextNeighbor();
+void searchDeleteNode(tree *ptree);
 void deleteNodes(node *root);
 void deleteTree(tree *raiz);
+node* sucessor(node *pnodeAtual);
