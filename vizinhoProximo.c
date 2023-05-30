@@ -58,7 +58,7 @@ cidade *new_cidade(int x, int y){
   return output;
 }
 
-node* new_node(void* data){
+node* new_node(void* data){ //acho q o problema do Insere está aqui // linha 93
   node* output = malloc(sizeof(node));
   output->pdata = data; //verificar se isso estará sintaticamente correto
   return output;
@@ -142,7 +142,7 @@ void printNode_restaurant(void *nodeObj){
 
 void printNode_cidade(void *nodeObj){
   node *nodeAux = (node*)nodeObj;
-  cidade *aux = (cidade*)nodeAux->pdata;
+  cidade *aux = (cidade*)&(nodeAux->pdata);
   if(nodeAux->left) {
     printNode_cidade((node*)nodeAux->left);
   }
