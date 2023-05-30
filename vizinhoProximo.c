@@ -98,6 +98,10 @@ void kd_insert(tree *ptree, void *new_node_data){
 }
 
 node* sucessores(node *pnodeAtual){
+  
+  if (pnodeAtual->left == NULL && pnodeAtual->right == NULL){
+    return pnodeAtual->parent;
+  }
 
   if (pnodeAtual->left ==  NULL){
     pnodeAtual = (node*)pnodeAtual->right;
@@ -117,24 +121,28 @@ node* sucessores(node *pnodeAtual){
 }
 
 node *predecessor(node *pnodeAtual, int depth){
-  if (pnodeAtual->left == NULL && pnodeAtual->right == NULL){
-    pnodeAtual = (node*)pnodeAtual->parent;
-    depth++;
-    while(1){
-      if (depth%2==0){
-        if ((pnodeAtual->pdata->x - pnodeAtual->parent->pdata->x) >=0  ){
-          break;
-        }
-        depth++;
+
+
+    if(pnodeAtual->left != NULL){
+      pnodeAtual = pnodeAtual->left;
+      while (pnodeAtual->direita != NULL){
+        pnodeAtual = pnodeAtual->direita;
       }
-      else{
-        if ((pnodeAtual->pdata->y - pnodeAtual->parent->pdata->y) >=0  ){
-          break;
-        }
-        depth++;
-      }
+
+      return pnodeAtual;
     }
-  }
+
+      node* parent = pnodeAtual->parent;
+
+      while (parent != NULL && no == parent->esquerda){
+        no = parent;
+        parent = parent->parent;
+      }
+
+    return parent;
+  
+
+    
 }
 
 void printKDTree(const void *treeObj, void (*printNode)(void *nodeObj)){

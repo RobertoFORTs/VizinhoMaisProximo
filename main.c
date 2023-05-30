@@ -18,5 +18,6 @@ int main(){
   kd_insert(kd_arvore, new_restaurant(1,6));
   kd_insert(kd_arvore, new_restaurant(13,14));
   printKDTree(kd_arvore, kd_arvore->printNode);
+  deleteTree(kd_arvore);
   return 0;
 }
