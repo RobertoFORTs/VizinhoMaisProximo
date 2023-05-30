@@ -58,9 +58,9 @@ cidade *new_cidade(int x, int y){
   return output;
 }
 
-node* new_node(void* data){ //acho q o problema do Insere está aqui // linha 93
+node* new_node(void* data){ 
   node* output = malloc(sizeof(node));
-  output->pdata = data; //verificar se isso estará sintaticamente correto
+  output->pdata = data; 
   return output;
 }
 
