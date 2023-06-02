@@ -35,7 +35,7 @@ void printNode_cidade(void *nodeObj);
 void printNode_restaurant(void *nodeObj);
 void printKDTree(const void* tree, void (*printNode)(void *nodeObj));
 float distance(const void *coordinate, const void *neighbor);
-void searchNextNeighbor();
+int searchNextNeighbor(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* candidato, node *pnodeAtual, int *duplicate);
 void searchDeleteNode(tree *ptree);
 void deleteNodes(node *root);
 void deleteTree(tree *raiz);

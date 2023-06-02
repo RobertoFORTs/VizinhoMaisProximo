@@ -73,10 +73,11 @@ void kd_insert(tree *ptree, void *new_node_data){
   pNode = *ppNode;
   int depth = 0;
   int aux;
+  node* nodeAdd = (node*)new_node_data;
 
   while (pNode != NULL){
     
-    if (ptree->compara(pNode->pdata, new_node_data, depth) == -1){
+    if (ptree->compara(pNode->pdata, nodeAdd->pdata, depth) == -1){
         parentTemp = *ppNode;
         ppNode = (node**)&(pNode->left);
         pNode = *ppNode;
@@ -90,7 +91,7 @@ void kd_insert(tree *ptree, void *new_node_data){
     depth++;
   }
   if ((*ppNode == NULL)){
-    (*ppNode) = new_node(new_node_data);
+    (*ppNode) = new_node(nodeAdd->pdata);
     (*ppNode)->parent = (node*)parentTemp;
     (*ppNode)->left = NULL;
     (*ppNode)->right = NULL;
@@ -258,25 +259,39 @@ float distance(const void* coordinate, const void* neighbor){
 
 // }
 
-void searchNeighbohrs(node **listaMelhores, int k, int* tamAtual, node* candidato, node *pnodeAtual, int *duplicate){
-  
+int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* candidato, node *pnodeAtual, int *duplicate){
+  int depth = 0;
   if (*tamAtual == k){ //condição de parada
     return;
   }
 
   if (*tamAtual > 1){
     //procurar por sucessores do "paiAtual" e adicionar na listaMelhores
+    pnodeAtual = sucessores(pnodeAtual, duplicate);
+    insereListaMelhores(pnodeAtual);
+    return searchNextNeighbor(ptree, listaMelhores, k, tamAtual, candidato, pnodeAtual, duplicate);
   }
 
   if (candidato == pnodeAtual){
-    insereListamelhores(predecessor(pnodeAtual));   
-    insereListamelhores(sucessores(pnodeAtual));
+    insereListaMelhores(predecessor(pnodeAtual, duplicate));   
+    insereListaMelhores(sucessores(pnodeAtual), duplicate);
     duplicate = 1;
-    return; //recursivamente searchNextNeighbors com o nó pai e o duplicate atualizado  
+    return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, candidato, pnodeAtual->parent, duplicate); //recursivamente searchNextNeighbors com o nó pai e o duplicate atualizado  
   }
 
-  //percorrer árvore até achar o nó que se procura
-
-
+  while (candidato!=pnodeAtual){
+    //percorrer árvore até achar o nó que se procura
+    if (ptree->compara(pnodeAtual->pdata, candidato->pdata, depth) == -1){
+        pnodeAtual = pnodeAtual->left;
+      }
+    else{
+        pnodeAtual = pnodeAtual->right;
+      }
+    depth++;
+  }
+  if (candidato!=pnodeAtual){
+    return 0; //candidato então não existe na lista, logo não será possível continuar a busca
+  }
 }
+
 
