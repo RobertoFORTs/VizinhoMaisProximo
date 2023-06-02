@@ -253,12 +253,7 @@ float distance(const void* coordinate, const void* neighbor){
 //     (*tamAtual)--;
 //   }
 // }
-
-// void searchNextNeighbor(){
-
-
-// }
-
+//Para funcionar, devemos INSERIR por ÚLTIMO o nó q desejamos procurar
 int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* candidato, node *pnodeAtual, int *duplicate){
   int depth = 0;
   if (*tamAtual == k){ //condição de parada
@@ -292,6 +287,7 @@ int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, no
   if (candidato!=pnodeAtual){
     return 0; //candidato então não existe na lista, logo não será possível continuar a busca
   }
+  return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, candidato, pnodeAtual, duplicate);
 }
 
 
