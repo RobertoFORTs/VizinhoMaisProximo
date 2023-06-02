@@ -97,13 +97,22 @@ void kd_insert(tree *ptree, void *new_node_data){
   }
 }
 
-node* sucessores(node *pnodeAtual){
+node* sucessores(node *pnodeAtual, int* duplicate){
   
-  if (pnodeAtual->left == NULL && pnodeAtual->right == NULL){
+  if ((pnodeAtual->left == NULL && pnodeAtual->right == NULL) || *duplicate == 2){
+    *duplicate = 1;
     return pnodeAtual->parent;
   }
 
   if (pnodeAtual->left ==  NULL){
+    if (*duplicate == 1){
+      *duplicate = 2;
+      pnodeAtual = (node*)pnodeAtual->left;
+      while (pnodeAtual->right!=NULL){
+        pnodeAtual = (node*)pnodeAtual->right;
+      } 
+      return pnodeAtual;
+    }
     pnodeAtual = (node*)pnodeAtual->right;
     while (pnodeAtual->left!=NULL){
       pnodeAtual = (node*)pnodeAtual->left;
@@ -111,6 +120,14 @@ node* sucessores(node *pnodeAtual){
     return pnodeAtual; //será o sucessor no caso de ser um node no início ou meio da árvore
   }
   else{
+    if (*duplicate == 1){
+      *duplicate = 2;
+      pnodeAtual = (node*)pnodeAtual->right;
+      while (pnodeAtual->left!=NULL){
+        pnodeAtual = (node*)pnodeAtual->left;
+      }
+      return pnodeAtual; 
+    }
     pnodeAtual = (node*)pnodeAtual->left;
     while (pnodeAtual->right!=NULL){
       pnodeAtual = (node*)pnodeAtual->right;
@@ -120,7 +137,7 @@ node* sucessores(node *pnodeAtual){
   }
 }
 
-node *predecessor(node *pnodeAtual, int depth){
+node *predecessor(node *pnodeAtual){
 
 
     if(pnodeAtual->left != NULL){
@@ -212,20 +229,19 @@ float distance(const void* coordinate, const void* neighbor){
   return sqrt( pow(b[0]-a[0], 2) + pow(b[1]-a[1], 2) );
 }
 
-// int compareListaMelhores(const void* A, const void *B){
-//   node* a = (node*)A;
-//   node* b = (node*)B;
-//   if (distance(b->coordinate, globalLocation) < distance(a->coordinate, globalLocation)){
-//     return -1;
-//   }
+//  int compareListaMelhores(const void* A, const void *B){
+//    node* a = (node*)A;
+//    node* b = (node*)B;
+//    if (distance(b->coordinate, globalLocation) < distance(a->coordinate, globalLocation)){
+//      return -1;
+//    }
 
-//   if (distance(b->coordinate, globalLocation) > distance(a->coordinate, globalLocation)){
-//     return 1;
-//   }
+//    if (distance(b->coordinate, globalLocation) > distance(a->coordinate, globalLocation)){
+//      return 1;
+//    }
 
-//   return 0;
-// }
-
+//    return 0;
+//  }
 
 
 // void insereListaMelhores(node** listaMelhores, int K, int* tamAtual, node* candidato, float* location){
@@ -241,4 +257,26 @@ float distance(const void* coordinate, const void* neighbor){
 
 
 // }
+
+void searchNeighbohrs(node **listaMelhores, int k, int* tamAtual, node* candidato, node *pnodeAtual, int *duplicate){
+  
+  if (*tamAtual == k){ //condição de parada
+    return;
+  }
+
+  if (*tamAtual > 1){
+    //procurar por sucessores do "paiAtual" e adicionar na listaMelhores
+  }
+
+  if (candidato == pnodeAtual){
+    insereListamelhores(predecessor(pnodeAtual));   
+    insereListamelhores(sucessores(pnodeAtual));
+    duplicate = 1;
+    return; //recursivamente searchNextNeighbors com o nó pai e o duplicate atualizado  
+  }
+
+  //percorrer árvore até achar o nó que se procura
+
+
+}
 

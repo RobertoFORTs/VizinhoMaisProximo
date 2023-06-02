@@ -39,5 +39,5 @@ void searchNextNeighbor();
 void searchDeleteNode(tree *ptree);
 void deleteNodes(node *root);
 void deleteTree(tree *raiz);
-node* sucessor(node *pnodeAtual);
+node* sucessores(node *pnodeAtual, int *duplicate);
 node* predecessor(node* pNodeAtual, int depth);
