@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 
+node *globalLocation;
+
 int compare_restaurant(const void* coordinate, const void *candidate, int depth){
   restaurant* a = (restaurant*)coordinate;
   restaurant* b = (restaurant*)candidate;
@@ -37,11 +39,13 @@ int compare_cidade(const void* coordinate, const void *candidate, int depth){
     return 0;
   }
 }
-void kd_build(tree *ptree, int (*compara)(const void *a, const void *b, int depth), void (*printNode)(void *node)){
+
+void kd_build(tree *ptree, int (*compara)(const void *a, const void *b, int depth), void (*printNode)(void *node), int (*compareListaMelhores)(const void* A, const void *B);){
   
   ptree->root = NULL;
   ptree->compara = compara;
   ptree->printNode = printNode;
+  ptree->compareListaMelhores = compareListaMelhores;
 }
 
 restaurant *new_restaurant(int x, int y){
@@ -222,40 +226,60 @@ void deleteTree(tree *kd_tree){
   
 }
 
-float distance(const void* coordinate, const void* neighbor){
-   float *a, *b;
-   a = (float*)coordinate;
-   b = (float*)neighbor;
-
-  return sqrt( pow(b[0]-a[0], 2) + pow(b[1]-a[1], 2) );
+float distanceCidade(const void* coordinate, const void* neighbor){
+  cidade *a, *b;
+  a = (cidade*) coordinate;
+  b = (cidade*) neighbor;
+  return sqrt( pow(b->x - a->y, 2) + pow(b->y - a->y, 2) );
 }
 
-//  int compareListaMelhores(const void* A, const void *B){
-//    node* a = (node*)A;
-//    node* b = (node*)B;
-//    if (distance(b->coordinate, globalLocation) < distance(a->coordinate, globalLocation)){
-//      return -1;
-//    }
+float distanceRestaurante(const void* coordinate, const void* neighbor){
+  restaurant *a, *b;
+  a = (restaurant*) coordinate;
+  b = (restaurant*) neighbor;
+  return sqrt( pow(b->x - a->y, 2) + pow(b->y - a->y, 2) );}
 
-//    if (distance(b->coordinate, globalLocation) > distance(a->coordinate, globalLocation)){
-//      return 1;
-//    }
+int compareListaMelhores(const void* A, const void *B);
+  
+int compareListaMelhoresRestaurante(const void* A, const void *B){
+  node* a = (node*)A;
+  node* b = (node*)B;
+  if (distanceRestaurante(b->pdata, globalLocation->pdata) < distanceRestaurante(a->pdata, globalLocation->pdata)){
+    return -1;
+  }
 
-//    return 0;
-//  }
+  if (distanceRestaurante(b->pdata, globalLocation->pdata) > distanceRestaurante(a->pdata, globalLocation->pdata)){
+    return 1;
+  }
 
+  return 0;
+}
 
-// void insereListaMelhores(node** listaMelhores, int K, int* tamAtual, node* candidato, float* location){
-//   listaMelhores[(*tamAtual)++] = candidato;
-//   globalLocation = location;
-//   qsort(listaMelhores, *tamAtual, sizeof(node*) * 2, compareListaMelhores);
-//   if(*tamAtual == K + 1) {
-//     (*tamAtual)--;
-//   }
-// }
+int compareListaMelhoresCidade(const void* A, const void *B){
+  node* a = (node*)A;
+  node* b = (node*)B;
+  if (distanceCidade(b->pdata, globalLocation->pdata) < distanceCidade(a->pdata, globalLocation->pdata)){
+    return -1;
+  }
+
+  if (distanceCidade(b->pdata, globalLocation->pdata) > distanceCidade(a->pdata, globalLocation->pdata)){
+    return 1;
+  }
+
+  return 0;
+}
+
+ void insereListaMelhores(tree *ptree, node** listaMelhores, int K, int* tamAtual, node* candidato, node* location){
+   listaMelhores[(*tamAtual)++] = candidato;
+   globalLocation = location;
+   qsort(listaMelhores, *tamAtual, sizeof(node*) * 2, ptree->compareListaMelhores);
+   if(*tamAtual == K + 1) {
+     (*tamAtual)--;
+   }
+ }
 
 //Para funcionar, devemos INSERIR por ÚLTIMO o nó q desejamos procurar
-int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* candidato, node *pnodeAtual, int *duplicate){
+int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* location, node *pnodeAtual, int *duplicate){
   int depth = 0;
   if (*tamAtual == k){ //condição de parada
     return;
@@ -264,20 +288,20 @@ int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, no
   if (*tamAtual > 1){
     //procurar por sucessores do "paiAtual" e adicionar na listaMelhores
     pnodeAtual = sucessores(pnodeAtual, duplicate);
-    insereListaMelhores(pnodeAtual);
-    return searchNextNeighbor(ptree, listaMelhores, k, tamAtual, candidato, pnodeAtual, duplicate);
+    insereListaMelhores(ptree, listaMelhores, k, tamAtual, pnodeAtual, location);
+    return searchNextNeighbor(ptree, listaMelhores, k, tamAtual, location, pnodeAtual, duplicate);
   }
 
-  if (candidato == pnodeAtual){
-    insereListaMelhores(predecessor(pnodeAtual, duplicate));   
-    insereListaMelhores(sucessores(pnodeAtual), duplicate);
+  if (location == pnodeAtual){
+    insereListaMelhores(ptree, listaMelhores, k, tamAtual, predecessor(pnodeAtual), location);   
+    insereListaMelhores(ptree, listaMelhores, k, tamAtual, sucessores(pnodeAtual, duplicate), location);
     duplicate = 1;
-    return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, candidato, pnodeAtual->parent, duplicate); //recursivamente searchNextNeighbors com o nó pai e o duplicate atualizado  
+    return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, location, pnodeAtual->parent, duplicate); //recursivamente searchNextNeighbors com o nó pai e o duplicate atualizado  
   }
 
-  while (candidato!=pnodeAtual){
+  while (location!=pnodeAtual){
     //percorrer árvore até achar o nó que se procura
-    if (ptree->compara(pnodeAtual->pdata, candidato->pdata, depth) == -1){
+    if (ptree->compara(pnodeAtual->pdata, location->pdata, depth) == -1){
         pnodeAtual = pnodeAtual->left;
       }
     else{
@@ -285,10 +309,10 @@ int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, no
       }
     depth++;
   }
-  if (candidato!=pnodeAtual){
-    return 0; //candidato então não existe na lista, logo não será possível continuar a busca
+  if (location!=pnodeAtual){
+    return 0; //location então não existe na lista, logo não será possível continuar a busca
   }
-  return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, candidato, pnodeAtual, duplicate);
+  return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, location, pnodeAtual, duplicate);
 }
 
 

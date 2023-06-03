@@ -21,6 +21,7 @@ typedef struct KD_Tree{
   node* root;
   int (*compara)(const void *a, const void *b, int depth);
   void (*printNode)(void* nodeObj);
+  int (*compareListaMelhores)(const void* A, const void *B);
 }tree;
 
 
@@ -34,10 +35,13 @@ node* new_node(void* data);
 void printNode_cidade(void *nodeObj);
 void printNode_restaurant(void *nodeObj);
 void printKDTree(const void* tree, void (*printNode)(void *nodeObj));
-float distance(const void *coordinate, const void *neighbor);
+float distanceCidade(const void *coordinate, const void *neighbor);
+float distanceRestaurante(const void *coordinate, const void *neighbor);
 int searchNextNeighbor(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* candidato, node *pnodeAtual, int *duplicate);
 void searchDeleteNode(tree *ptree);
 void deleteNodes(node *root);
 void deleteTree(tree *raiz);
 node* sucessores(node *pnodeAtual, int *duplicate);
 node* predecessor(node* pNodeAtual, int depth);
+int compareListaMelhoresRestaurante(const void* A, const void *B);
+int compareListaMelhoresCidade(const void* A, const void *B);
