@@ -9,64 +9,67 @@ int compare_restaurant(const void* coordinate, const void *candidate, int depth)
   restaurant* a = (restaurant*)coordinate;
   restaurant* b = (restaurant*)candidate;
 
+  if (b->latitude == a->latitude && b->longitude == a->longitude){
+    return 0;
+  }
+
   if (depth%2 ==0){
-    if ((b)->x < (a)->x){
+    if ((b)->latitude < (a)->latitude){
     return -1;
   }
-  return 0;
+  return 1;
   }
   else{
-    if ((b)->y < (a)->x){
+    if ((b)->longitude < (a)->longitude){
       return -1;
     }
-    return 0;
+    return 1;
   }
 }
 int compare_cidade(const void* coordinate, const void *candidate, int depth){
   cidade* a = (cidade*)coordinate;
   cidade* b = (cidade*)candidate;
 
+   if (b->latitude == a->latitude && b->longitude == a->longitude){
+    return 0;
+  }
+
   if (depth%2 ==0){
-    if (b->x < a->x){
+    if ((b)->latitude < (a)->latitude){
     return -1;
   }
-  return 0;
+  return 1;
   }
   else{
-    if (b->y < a->x){
+    if ((b)->longitude < (a)->longitude){
       return -1;
     }
-    return 0;
+    return 1;
   }
 }
 
-void kd_build(tree *ptree, int (*compara)(const void *a, const void *b, int depth), void (*printNode)(void *node), int (*compareListaMelhores)(const void* A, const void *B);){
+void kd_build(tree *ptree, int (*compara)(const void *a, const void *b, int depth), void (*printNode)(void *node), int (*compareListaMelhores)(const void* A, const void *B), node* (*new_node)(const void *data)){
   
   ptree->root = NULL;
   ptree->compara = compara;
   ptree->printNode = printNode;
   ptree->compareListaMelhores = compareListaMelhores;
+  ptree->new_node = new_node;
 }
 
-restaurant *new_restaurant(int x, int y){
-  restaurant *output = malloc(sizeof(restaurant));
-  output->x = x;
-  output->y = y;
+node* new_restaurant(const void *data){
+  node *output = malloc(sizeof(node));
+  output->pdata = data;
   return output;
 }
 
-cidade *new_cidade(int x, int y){
-  cidade *output = malloc(sizeof(cidade));
-  output->x = x;
-  output->y = y;
+node* new_cidade(const void *data){
+  node *output = malloc(sizeof(node));
+  output->pdata = (cidade*)data;
   return output;
 }
 
-node* new_node(void* data){ 
-  node* output = malloc(sizeof(node));
-  output->pdata = data; 
-  return output;
-}
+node* new_node(const void* data);
 
 void kd_insert(tree *ptree, void *new_node_data){
   node **ppNode;
@@ -76,26 +79,27 @@ void kd_insert(tree *ptree, void *new_node_data){
   parentTemp = *ppNode;
   pNode = *ppNode;
   int depth = 0;
-  int aux;
-  node* nodeAdd = (node*)new_node_data;
 
   while (pNode != NULL){
     
-    if (ptree->compara(pNode->pdata, nodeAdd->pdata, depth) == -1){
+    if (ptree->compara(pNode->pdata, new_node_data, depth) == -1){
         parentTemp = *ppNode;
         ppNode = (node**)&(pNode->left);
         pNode = *ppNode;
       }
-    else{
+    else if (ptree->compara(pNode->pdata, new_node_data, depth) == 1){
         parentTemp = *ppNode;
         ppNode = (node**)&(pNode->right);
         pNode = *ppNode;
       }
+    else{
+      return; //só vai retornar e não irá inserir na árvore caso exista um nó igual a esse presente
+    }
 
     depth++;
   }
   if ((*ppNode == NULL)){
-    (*ppNode) = new_node(nodeAdd->pdata);
+    (*ppNode) = (node*)ptree->new_node(new_node_data);
     (*ppNode)->parent = (node*)parentTemp;
     (*ppNode)->left = NULL;
     (*ppNode)->right = NULL;
@@ -154,12 +158,12 @@ node *predecessor(node *pnodeAtual){
       return pnodeAtual;
     }
 
-      node* parent = pnodeAtual->parent;
+    node* parent = pnodeAtual->parent;
 
-      while (parent != NULL && pnodeAtual == parent->left){
-        pnodeAtual = parent;
-        parent = parent->parent;
-      }
+    while (parent != NULL && pnodeAtual == parent->left){
+      pnodeAtual = parent;
+      parent = parent->parent;
+    }
 
     return parent;
   
@@ -183,7 +187,7 @@ void printNode_restaurant(void *nodeObj){
     printNode_restaurant((node*)nodeAux->left);
   }
 
-  printf("[%d, %d] \n", aux->x, aux->y);
+  printf("[%f, %f] \n", aux->latitude, aux->longitude);
   
   if(nodeAux->right) {
     printNode_restaurant((node*)nodeAux->right);
@@ -193,12 +197,12 @@ void printNode_restaurant(void *nodeObj){
 
 void printNode_cidade(void *nodeObj){
   node *nodeAux = (node*)nodeObj;
-  cidade *aux = (cidade*)&(nodeAux->pdata);
+  cidade *aux = (cidade*)(nodeAux->pdata);
   if(nodeAux->left) {
     printNode_cidade((node*)nodeAux->left);
   }
 
-  printf("[%d, %d] \n", aux->x, aux->y);
+  printf("[%f, %f] \n", aux->latitude, aux->longitude);
   
   if(nodeAux->right) {
     printNode_cidade((node*)nodeAux->right);
@@ -230,14 +234,14 @@ float distanceCidade(const void* coordinate, const void* neighbor){
   cidade *a, *b;
   a = (cidade*) coordinate;
   b = (cidade*) neighbor;
-  return sqrt( pow(b->x - a->y, 2) + pow(b->y - a->y, 2) );
+  return sqrt( pow(b->latitude - a->latitude, 2) + pow(b->longitude - a->longitude, 2) );
 }
 
-float distanceRestaurante(const void* coordinate, const void* neighbor){
-  restaurant *a, *b;
-  a = (restaurant*) coordinate;
-  b = (restaurant*) neighbor;
-  return sqrt( pow(b->x - a->y, 2) + pow(b->y - a->y, 2) );}
+ float distanceRestaurante(const void* coordinate, const void* neighbor){
+   restaurant *a, *b;
+   a = (restaurant*) coordinate;
+   b = (restaurant*) neighbor;
+   return sqrt( pow(b->latitude - a->latitude, 2) + pow(b->longitude - a->longitude, 2) );}
 
 int compareListaMelhores(const void* A, const void *B);
   
@@ -279,7 +283,7 @@ int compareListaMelhoresCidade(const void* A, const void *B){
  }
 
 //Para funcionar, devemos INSERIR por ÚLTIMO o nó q desejamos procurar
-int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* location, node *pnodeAtual, int *duplicate){
+void searchNeighbors(tree *ptree, node **listaMelhores, int k, int* tamAtual, node* location, node *pnodeAtual, int *duplicate){
   int depth = 0;
   if (*tamAtual == k){ //condição de parada
     return;
@@ -289,30 +293,71 @@ int searchNeighbohrs(tree *ptree, node **listaMelhores, int k, int* tamAtual, no
     //procurar por sucessores do "paiAtual" e adicionar na listaMelhores
     pnodeAtual = sucessores(pnodeAtual, duplicate);
     insereListaMelhores(ptree, listaMelhores, k, tamAtual, pnodeAtual, location);
-    return searchNextNeighbor(ptree, listaMelhores, k, tamAtual, location, pnodeAtual, duplicate);
+    return searchNeighbors(ptree, listaMelhores, k, tamAtual, location, pnodeAtual, duplicate);
   }
 
-  if (location == pnodeAtual){
+  if (ptree->compara(pnodeAtual->pdata, location->pdata, depth) == 0){
     insereListaMelhores(ptree, listaMelhores, k, tamAtual, predecessor(pnodeAtual), location);   
     insereListaMelhores(ptree, listaMelhores, k, tamAtual, sucessores(pnodeAtual, duplicate), location);
     duplicate = 1;
-    return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, location, pnodeAtual->parent, duplicate); //recursivamente searchNextNeighbors com o nó pai e o duplicate atualizado  
+    return searchNeighbors(ptree, listaMelhores, k, tamAtual, location, pnodeAtual->parent, duplicate); //recursivamente searchNeighborss com o nó pai e o duplicate atualizado  
   }
 
-  while (location!=pnodeAtual){
+  while (pnodeAtual != NULL){
     //percorrer árvore até achar o nó que se procura
     if (ptree->compara(pnodeAtual->pdata, location->pdata, depth) == -1){
         pnodeAtual = pnodeAtual->left;
       }
-    else{
+    else if (ptree->compara(pnodeAtual->pdata, location->pdata, depth) == 1){
         pnodeAtual = pnodeAtual->right;
       }
+    else{
+      //achou igual
+      return searchNeighbors(ptree, listaMelhores, k, tamAtual, location, pnodeAtual, duplicate);
+    }
     depth++;
   }
-  if (location!=pnodeAtual){
-    return 0; //location então não existe na lista, logo não será possível continuar a busca
-  }
-  return searchNeighbohrs(ptree, listaMelhores, k, tamAtual, location, pnodeAtual, duplicate);
 }
 
+// void menu(){
+//   int op = -1;
+//   while (op != 5){
+    
+//     printf("------------- Search Next Neighbor -------------\n");
+//     printf("1 - build Tree(s)\n");
+//     printf("2 - Insert data on tree(s)\n");
+//     printf("3 - Search Neighbor(s)\n");
+//     printf("4 - Delete tree\n");
+//     printf("5 - Stop program\n");
+
+//     int y = scanf("%d", &op);
+
+//     if (op == 1){
+//       kd_build();
+//       printf("succesfully built the tree!\n");
+//     }
+
+//     if (op ==2){
+//       printf("Please inform the data:\n");
+
+//     }
+
+//     if(op == 3){
+//       printf("Inform the locality(Name) That you want to search for its next neighbors:\n");
+      
+//       char[50] name;
+//       scanf(" %s", name);
+//       //searchNode by name
+
+//     }
+//     if(op == 4){
+//       deleteTree();
+//       printf("Tree deleted\n");
+//     }
+//     if(op == 5){
+//       printf("Stopped!\n");
+//       break;
+//     }
+//     }
+// }
 
