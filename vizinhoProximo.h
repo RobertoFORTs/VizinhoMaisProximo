@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 typedef struct Kd_restaurant{
+  int line;
   int cod;
   char address[100];
   char categories[100];
